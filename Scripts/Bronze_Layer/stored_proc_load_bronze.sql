@@ -111,4 +111,29 @@ BEGIN
 
 		SET @start_time = GETDATE();
 		PRINT '>> Truncating Table : bronze.erp_px_cat_g1v2' ;
-		TRUNCATE TA
+		TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+		PRINT '>> Inserting Data INTO : bronze.erp_px_cat_g1v2'
+		BULK INSERT bronze.erp_px_cat_g1v2
+		FROM 'C:\Users\Asus\Desktop\SQL_PROJECT\sql-data-warehouse-project\datasets\source_erp\PX_CAT_G1V2.csv'
+		WITH(
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time,@end_time) AS NVARCHAR) + ' seconds';
+		SET @batch_end_time = GETDATE()
+		PRINT 'Loading Bronze Layer is Completed';
+		PRINT '============================================================================================================';
+		PRINT '>> Total Load Duration: ' + CAST(DATEDIFF(second, @batch_start_time,@batch_end_time) AS NVARCHAR) + ' seconds';
+		PRINT '============================================================================================================';
+	END TRY
+	BEGIN CATCH
+		PRINT '==============================================='
+		PRINT 'ERROR OCCURRED DURING LOADING BRONZE LAYER'
+		PRINT 'Error Message: ' + ERROR_MESSAGE();
+		PRINT 'Error Number: ' + CAST(ERROR_NUMBER() AS NVARCHAR);
+		PRINT 'Error State: ' + CAST(ERROR_STATE() AS NVARCHAR);
+		PRINT '===============================================' 
+	END CATCH
+END
